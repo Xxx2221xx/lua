@@ -2,7 +2,7 @@
 local Config = require(game.ServerScriptService.src.Config)
 local PromptValidator = require(game.ServerScriptService.src.Validation.PromptValidator)
 local MeshyClient = require(game.ServerScriptService.src.Clients.MeshyClient)
-local ClaudeClient = require(game.ServerScriptService.src.Clients.ClaudeClient)
+local ProceduralSceneGenerator = require(game.ServerScriptService.src.Generation.ProceduralSceneGenerator)
 local TerrainGenerator = require(game.ServerScriptService.src.Composition.TerrainGenerator)
 local ObjectPlacer = require(game.ServerScriptService.src.Composition.ObjectPlacer)
 local LightingRig = require(game.ServerScriptService.src.Visual.LightingRig)
@@ -30,13 +30,8 @@ function SceneComposer.generateScene(prompt)
         return false, nil, meshyErr
     end
 
-    local claudeSuccess, sceneConfig, claudeErr = ClaudeClient.elaborateScene(cleanedPrompt)
-    if not claudeSuccess then
-        ErrorHandler.log("ERROR", "Claude elaboration failed: " .. tostring(claudeErr))
-        sceneConfig = Fallbacks.degradeScene("timeout")
-    end
-
-    ErrorHandler.log("INFO", "APIs responded successfully")
+    local sceneConfig = ProceduralSceneGenerator.generateScene(cleanedPrompt)
+    ErrorHandler.log("INFO", "Scene config generated procedurally")
 
     local terrain = TerrainGenerator.generateTerrain(sceneConfig)
     local primaryObject, secondaryObjects = ObjectPlacer.placeObjects(modelUrl, sceneConfig)
