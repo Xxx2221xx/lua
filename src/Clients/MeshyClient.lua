@@ -7,6 +7,15 @@ local MeshyClient = {}
 function MeshyClient.generateModel(prompt, timeout)
     timeout = timeout or Config.GENERATION_TIMEOUT_MESHY
 
+    -- MOCK MODE: Test without API key
+    -- Comment this out and uncomment production code below when you have API key
+
+    local mockUrl = "rbxasset://textures/face.png"
+    wait(1)  -- Simulate processing
+    return true, mockUrl, nil
+
+    -- PRODUCTION CODE (uncomment with real API key):
+    --[[
     local body = {
         mode = "preview",
         prompt = prompt,
@@ -26,13 +35,11 @@ function MeshyClient.generateModel(prompt, timeout)
         return false, nil, "Meshy API request failed: " .. tostring(response)
     end
 
-    -- Meshy returns a task ID; we poll for completion
     local taskId = response.result.task_id
     if not taskId then
         return false, nil, "No task ID in Meshy response"
     end
 
-    -- Poll for completion (simplified; real implementation would use async)
     local elapsed = 0
     local pollInterval = 3
 
@@ -53,6 +60,7 @@ function MeshyClient.generateModel(prompt, timeout)
     end
 
     return false, nil, "Meshy generation timed out after " .. timeout .. " seconds"
+    --]]
 end
 
 return MeshyClient
